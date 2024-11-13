@@ -1,0 +1,168 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: white;
+    margin: 15px; /* Add a 5px margin on all sides */
+    padding: 0;
+    box-sizing: border-box; /* Include padding and border in the element's total width and height */
+}
+
+/* Header styles */
+h1 {
+    color: #333;
+    text-align: left;
+}
+
+/* Input styles */
+input[type="number"],
+input[type="text"],
+input[type="file"],
+button,
+#csvFile {
+    width: 100%; /* Adjust the width as needed */
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box; /* Include padding and border in the element's total width and height */
+}
+
+
+.loader {
+  border: 16px solid #f3f3f3;
+  border-radius: 50%;
+  border-top: 16px solid #3498db;
+  width: 120px;
+  height: 120px;
+  -webkit-animation: spin 2s linear infinite; /* Safari */
+  animation: spin 2s linear infinite;
+}
+
+/* Safari */
+@-webkit-keyframes spin {
+  0% { -webkit-transform: rotate(0deg); }
+  100% { -webkit-transform: rotate(360deg); }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Table styles */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+th, td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+th {
+    background-color: #f2f2f2; /* Light gray background for table headers */
+    font-weight: bold;
+    color: #333;
+}
+
+/* Result styles */
+#result_container {
+    padding: 10px;
+    background-color: #fff;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Loading dialog styles */
+.loading-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 9999;
+}
+
+.loading-message {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #fff;
+    font-size: 24px;
+}
+
+.topnav {
+    background-color: white;
+    overflow: hidden;
+    display: inline;
+}
+
+/* Style the links inside the navigation bar */
+.topnav a {
+    float: right;
+    color: black;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+    font-size: 11px;
+}
+
+/* Change the color of links on hover */
+.topnav a:hover {
+    background-color: #ddd;
+    color: black;
+}
+
+/* Add a color to the active/current link */
+.topnav a.active {
+    background-color: #04d6c4;
+    color: white;
+}
+
+#side-text {
+    margin-left: 10px;
+    color: #a7abb8; /* Adjust color as needed */
+}
+
+#intro-text {
+    color: #a7abb8;
+    margin-top: 20px;
+    margin-bottom: 40px;
+}
+
+
+
+#explain_results{
+	    margin-left: 20px; /* Adjust as needed */
+}
+
+#csvFile::before{
+  content: "Upload csv";
+  position: absolute;
+  z-index: 2;
+   display: flex; /* Use flexbox */
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Center vertically */
+  background-color: #0d6efd;
+  color: white;
+  width: calc(100% - 1px); /* Adjusted width to match the input's width minus border */
+  height: calc(100% - 1px); /* Adjusted height to match the input's height minus border */
+  text-align: center;
+  top: 0;
+  left: 0;
+}
+
+#parsing-details-text{
+    color: #a7abb8;
+}
+
+#parsing-details-text-decorated{
+	color: #04d6c4;
+	font-weight: bold;
+	font-style: italic;
+	display: inline;
+}

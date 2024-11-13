@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clustering</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<h1>Alexia Clustering</h1>
+
+
+<div class="file-input-container">
+    <label for="csvFile" class="custom-file-label">Upload CSV File</label>
+    <input type="file" id="csvFile" name="csvFile" accept=".csv">
+</div>
+
+<div>
+    <label for="numClusters">Select number of Clusters:</label><br>
+    <input type="number" id="numClusters" name="numClusters" min="1" value="3">
+</div>
+
+<button onclick="performClustering()">Execute clustering</button>
+
+<p>Find your results below</p>
+<div id="result_container">
+
+<div id="downloadable_link"></div>
+
+<div id="result"></div>
+
+
+
+</div>
+
+
+
+
+<script>
+function performClustering() {
+
+	var base_backend_url_prod = "https://mlbro-895ef9183ba3.herokuapp.com";
+	var base_backend_url_staging = "http://localhost:5000";
+
+
+    var numClusters = document.getElementById("numClusters").value;
+    var csvFile = document.getElementById("csvFile").files[0];
+
+    if (!csvFile) {
+        alert("Please select a CSV file.");
+        return;
+    }
+
+    // Read CSV file
+    var reader = new FileReader();
+    reader.onload = function(event) {
+        var data = event.target.result;
+
+        // Parse CSV data
+        var dataArray = Papa.parse(data, { header: true }).data;
+        var inputData = dataArray.map(row => Object.values(row).map(Number));
+
+        // Send POST request to Flask server
+        fetch(base_backend_url_prod+'/cluster', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                data: inputData,
+                num_clusters: parseInt(numClusters)
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Create CSV content with cluster labels
+            var csvContent = "data:text/csv;charset=utf-8,";
+            csvContent += "Original Data," + Object.keys(dataArray[0]).join(",") + ",Cluster Label\n";
+            dataArray.forEach((row, index) => {
+                csvContent += "Row " + (index + 1) + ",";
+                csvContent += Object.values(row).join(",") + ",";
+                csvContent += data.clusters[index] + "\n";
+            });
+			            // Create download link
+            var encodedUri = encodeURI(csvContent);
+            var link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "clustered_data.csv");
+            link.innerText = "Download your result";
+            document.getElementById("downloadable_link").innerHTML = ""; // Clear previous result
+            document.getElementById("downloadable_link").appendChild(link);
+
+            // Display clustering result
+            var resultDiv = document.getElementById("result");
+            resultDiv.innerHTML += "<p><b>Clustering quality Score: </b>" + data.silhouette_score.toFixed(4)*100+"%</p>";
+            
+			resultDiv.innerHTML += "<p><b>Inspect your cluster centers </b></p>";
+
+
+				
+					var tableHTML = "<table><tr><th>Features</th>";
+
+					// Add cluster headers
+					for (var i = 0; i < numClusters; i++) {
+						var clusterCounts = {};
+						data.clusters.forEach(cluster => {
+							clusterCounts[cluster] = (clusterCounts[cluster] || 0) + 1;
+						});
+						tableHTML += "<th>Cluster " + (i + 1) + " ("+ clusterCounts[i] +" items) </th>";
+
+					}
+					tableHTML += "</tr>"; // Close the header row
+
+					// Add feature rows
+					Object.keys(dataArray[0]).forEach((column, columnIndex) => {
+						var columnName = column;
+						tableHTML += "<tr><td>" + columnName + "</td>"; // Open a new table row for each feature
+						// Add cluster center values for each feature
+						for (var i = 0; i < numClusters; i++) {
+							var columnValue = data.cluster_centers[i][columnIndex] // Get the cluster center value
+							if(columnValue!=undefined && columnValue!=0.000){
+								tableHTML += "<td>" + parseFloat(columnValue).toFixed(3) + "</td>"; // Add the value to the table cell
+							}
+							else{
+								tableHTML += "<td>No center for categorical</td>"; // Add the value to the table cell
+							}
+						}
+						tableHTML += "</tr>"; // Close the table row after all data cells
+					});
+
+					// Close the table
+					tableHTML += "</table>";
+
+					// Append the table HTML to the resultDiv
+					resultDiv.innerHTML += tableHTML;
+				
+                <!-- Object.keys(dataArray[0]).forEach((column, columnIndex) => { -->
+                    <!-- var columnName = column; -->
+                    <!-- var columnValue = data.cluster_centers[i][columnIndex].toFixed(4); -->
+                    <!-- resultDiv.innerHTML += "<li>" + columnName + ": " + columnValue + "</li>"; -->
+                <!-- }); -->
+                <!-- resultDiv.innerHTML += "</ul>"; -->
+            
+			
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    };
+    reader.readAsText(csvFile);
+}
+</script>
+
+</body>
+</html>
